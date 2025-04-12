@@ -35,6 +35,30 @@ class ContactHelper {
     );
   }
 
+  Future<Contact> saveContact(Contact contact) async {
+    Database dbConnection = await db;
+
+    contact.id = await dbConnection.insert(contactTable, contact.toMap());
+
+    return contact;
+  }
+
+  Future<Contact?> getContact(int id) async {
+    Database dbConnection = await db;
+
+    List<Map> maps = await dbConnection.query(
+      contactTable,
+      columns: [idColumn, nameColumn, emailColumn, phoneColumn, imageColumn],
+      where: "$idColumn = ?",
+      whereArgs: [id],
+    );
+
+    if(maps.isNotEmpty) {
+      return Contact.fromMap(maps[0]);
+    } else {
+      return null;
+    }
+  }
 }
 
 class Contact {
