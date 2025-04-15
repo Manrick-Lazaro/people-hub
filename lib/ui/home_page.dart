@@ -12,26 +12,40 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final DatabaseService _databaseService = DatabaseService.instance;
 
+  List<Contact> contacts = [];
+
   @override
   void initState() {
     super.initState();
 
-    Contact c = Contact();
-
-    c.image = "Teste de imagem";
-    c.email = "Teste@gmail.com";
-    c.name = "Teste";
-    c.phone = "999";
-
-    _databaseService.saveContact(c);
-
-    _databaseService.getTotalContacts().then((list) {
-      print("=======================>>>>> $list");
+    _databaseService.getAllContacts().then((list) {
+      setState(() {
+        contacts = list;
+      });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Contatos', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.red,
+        centerTitle: true,
+      ),
+      backgroundColor: Colors.white,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        backgroundColor: Colors.red,
+        shape: CircleBorder(),
+        elevation: 6,
+        child: Icon(Icons.add, color: Colors.white),
+      ),
+      body: ListView.builder(
+        padding: EdgeInsets.all(10),
+        itemCount: contacts.length,
+        itemBuilder: (context, index) {},
+      ),
+    );
   }
 }
