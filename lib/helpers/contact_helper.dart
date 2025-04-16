@@ -15,7 +15,13 @@ class Contact {
   late String phone;
   late String image;
 
-  Contact();
+  Contact({
+    this.name = '',
+    this.id = 0,
+    this.email = '',
+    this.phone = '',
+    this.image = '',
+  });
 
   Contact.fromMap(Map map) {
     id = map[_idColumn];
