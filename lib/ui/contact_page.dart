@@ -21,6 +21,8 @@ class _ContactPageState extends State<ContactPage> {
   final _emailFieldController = TextEditingController();
   final _phoneFieldController = TextEditingController();
 
+  final _nameFocus = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -46,7 +48,13 @@ class _ContactPageState extends State<ContactPage> {
         centerTitle: true,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          if(_editedContact.name != null && _editedContact.name.isNotEmpty){
+            Navigator.pop(context, _editedContact);
+          } else {
+            FocusScope.of(context).requestFocus(_nameFocus);
+          }
+        },
         shape: CircleBorder(),
         backgroundColor: Colors.red,
         child: Icon(Icons.save, color: Colors.white),
@@ -55,58 +63,57 @@ class _ContactPageState extends State<ContactPage> {
         padding: EdgeInsets.all(10),
         child: Column(
           children: [
-        GestureDetector(
-        child: Container(
-        height: 80,
-          width: 80,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            image: DecorationImage(
-              image:
-              _editedContact.image != ""
-                  ? FileImage(File(_editedContact.image))
-                  : AssetImage('images/person.png'),
+            GestureDetector(
+              child: Container(
+                height: 80,
+                width: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image:
+                        _editedContact.image != ""
+                            ? FileImage(File(_editedContact.image))
+                            : AssetImage('images/person.png'),
+                  ),
+                ),
+              ),
             ),
-          ),
+            TextField(
+              controller: _nameFieldController,
+              focusNode: _nameFocus,
+              decoration: InputDecoration(labelText: "Nome"),
+              onChanged: (text) {
+                setState(() {
+                  _userEdited = true;
+                  _editedContact.name = text;
+                });
+              },
+            ),
+            TextField(
+              controller: _emailFieldController,
+              decoration: InputDecoration(labelText: "Email"),
+              onChanged: (text) {
+                setState(() {
+                  _userEdited = true;
+                  _editedContact.email = text;
+                });
+              },
+              keyboardType: TextInputType.emailAddress,
+            ),
+            TextField(
+              controller: _phoneFieldController,
+              decoration: InputDecoration(labelText: "Telefone"),
+              onChanged: (text) {
+                setState(() {
+                  _userEdited = true;
+                  _editedContact.phone = text;
+                });
+              },
+              keyboardType: TextInputType.phone,
+            ),
+          ],
         ),
       ),
-      TextField(
-        controller: _nameFieldController,
-        decoration: InputDecoration(labelText: "Nome"),
-        onChanged: (text) {
-          setState(() {
-            _userEdited = true;
-            _editedContact.name = text;
-          });
-        },
-      ),
-      TextField(
-        controller: _emailFieldController,
-        decoration: InputDecoration(labelText: "Email"),
-        onChanged: (text) {
-          setState(() {
-            _userEdited = true;
-            _editedContact.email = text;
-          });
-        },
-        keyboardType: TextInputType.emailAddress,
-      ),
-      TextField(
-          controller: _phoneFieldController,
-          decoration: InputDecoration(labelText: "Telefone"),
-      onChanged: (text) {
-        setState(() {
-          _userEdited = true;
-          _editedContact.phone = text;
-        });
-      },
-      keyboardType: TextInputType.phone,
-    ),]
-    ,
-    )
-    ,
-    )
-    ,
     );
   }
 }

@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:peoplehub/helpers/contact_helper.dart';
 import 'package:peoplehub/services/database_services.dart';
+import 'package:peoplehub/ui/contact_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,11 +21,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    _databaseService.getAllContacts().then((list) {
-      setState(() {
-        contacts = list;
-      });
-    });
+    _getContacts();
   }
 
   @override
@@ -35,7 +34,9 @@ class _HomePageState extends State<HomePage> {
       ),
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          _showContactPage();
+        },
         backgroundColor: Colors.red,
         shape: CircleBorder(),
         elevation: 6,
@@ -44,8 +45,81 @@ class _HomePageState extends State<HomePage> {
       body: ListView.builder(
         padding: EdgeInsets.all(10),
         itemCount: contacts.length,
-        itemBuilder: (context, index) {},
+        itemBuilder: (context, index) {
+          return _contactCard(context, index);
+        },
       ),
     );
+  }
+
+  Widget _contactCard(BuildContext context, int index) {
+    return GestureDetector(
+      child: Card(
+        child: Padding(
+          padding: EdgeInsets.all(10),
+          child: Row(
+            children: [
+              Container(
+                height: 80,
+                width: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image:
+                        contacts[index].image != ""
+                            ? FileImage(File(contacts[index].image))
+                            : AssetImage('images/person.png'),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      contacts[index].name,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(contacts[index].email, style: TextStyle(fontSize: 18)),
+                    Text(contacts[index].phone, style: TextStyle(fontSize: 18)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      onTap: () {
+        _showContactPage(contact: contacts[index]);
+      },
+    );
+  }
+
+  void _showContactPage({Contact? contact}) async {
+    final Contact res = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ContactPage(contact: contact)),
+    );
+    if (res != null) {
+      if (contact != null) {
+        print('zzzzzzz===============>>>>> ${res.toMap()}');
+        await _databaseService.updateContact(res);
+      } else {
+        await _databaseService.saveContact(res);
+      }
+      _getContacts();
+    }
+  }
+
+  void _getContacts() {
+    _databaseService.getAllContacts().then((list) {
+      setState(() {
+        contacts = list;
+      });
+    });
   }
 }

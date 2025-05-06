@@ -33,11 +33,11 @@ class DatabaseService {
       onCreate: (db, version) {
         db.execute('''
         CREATE TABLE $_contactTable (
-          $_idColumn INTEGER PRIMARY KEY,
+          $_idColumn INTEGER PRIMARY KEY AUTOINCREMENT,
           $_nameColumn TEXT NOT NULL,
           $_emailColumn TEXT,
           $_phoneColumn TEXT NOT NULL,
-          $_idColumn TEXT,
+          $_imageColumn TEXT
         )
         ''');
       },
@@ -48,7 +48,12 @@ class DatabaseService {
   Future<Contact> saveContact(Contact contact) async {
     final dbConnection = await database;
 
-    contact.id = await dbConnection.insert(_contactTable, contact.toMap());
+    Map<String, dynamic> contactMap = contact.toMap();
+    contactMap.remove(_idColumn);
+
+    int newId = await dbConnection.insert(_contactTable, contactMap);
+
+    contact.id = newId;
 
     return contact;
   }
@@ -58,7 +63,13 @@ class DatabaseService {
 
     List<Map> maps = await dbConnection.query(
       _contactTable,
-      columns: [_idColumn, _nameColumn, _emailColumn, _phoneColumn, _imageColumn],
+      columns: [
+        _idColumn,
+        _nameColumn,
+        _emailColumn,
+        _phoneColumn,
+        _imageColumn,
+      ],
       where: "$_idColumn = ?",
       whereArgs: [id],
     );
@@ -99,7 +110,15 @@ class DatabaseService {
     List<Contact> listContacts = [];
 
     for (Map m in listMap) {
-      listContacts.add(Contact.fromMap(m));
+      Contact c = new Contact(
+        image: m[_imageColumn],
+        email: m[_emailColumn],
+        id: m[_idColumn],
+        name: m[_nameColumn],
+        phone: m[_phoneColumn],
+      );
+
+      listContacts.add(c);
     }
 
     return listContacts;

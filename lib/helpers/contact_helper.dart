@@ -9,15 +9,15 @@ final String _phoneColumn = 'phoneColumn';
 final String _imageColumn = 'imageColumn';
 
 class Contact {
-  late int id;
+  late int? id;
   late String name;
   late String email;
   late String phone;
   late String image;
 
   Contact({
-    this.name = '',
     this.id = 0,
+    this.name = '',
     this.email = '',
     this.phone = '',
     this.image = '',
@@ -38,6 +38,11 @@ class Contact {
       _phoneColumn: phone,
       _imageColumn: image,
     };
+
+    if(id != null) {
+      map[_idColumn] = id;
+    }
+
     return map;
   }
 }
